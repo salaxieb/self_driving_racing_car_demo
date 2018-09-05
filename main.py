@@ -13,7 +13,7 @@ random.seed(1234567890)
 
 walls = array([[[0, 0], [50, 0]], [[50, 0], [50, 50]], [[50, 50], [0, 50]], [[0, 50], [0, 0]],
               [[5, 5], [45, 5]],[[45, 5], [45, 45]],[[45, 45], [5, 45]],[[5, 45], [5, 5]]])
-
+"""
 def perp( a ) :
     b = empty_like(a)
     b[:,0] = -a[:,1]
@@ -22,35 +22,35 @@ def perp( a ) :
  
 def seg_intersect(a, walls):
     print (a)
-    da = a[:,1]-a[:,0]
+    da = a[1]-a[0]
     print ("da", da)
-    db = walls[:,:,1]-walls[:,:,0]
+    db = walls[:,1]-walls[:,0]
     print ("db",db)
-    print ("a", a[:,0])
-    print ("wall", transpose(walls[:,:,0], (1,0,2)).shape)
+    print ("a", a[0])
+    print ("wall", trsensors_cross_wallspose(walls[:,0], (1,0,2)).shape)
     print ("wall", walls[:,:,0])
-    dp = a[:,0] - transpose(walls[:,:,0], (1,0,2))
+    dp = a[:,0] - trsensors_cross_wallspose(walls[:,:,0], (1,0,2))
     print ("dp", dp)
     print ("da", da)
     dap = perp(da)
     print ("dap", dap)
-    print ("size", transpose(db, (1,0,2)).shape, dap.T.shape )
+    print ("size", trsensors_cross_wallspose(db, (1,0,2)).shape, dap.T.shape )
     print ("size", db.shape, dap.shape )
     denom = array([])
     for db_i, dap_i in zip(db, dap): #iterating two arrays
         denom = append(denom,dot(db_i, dap_i))
         print ("here",dot(db_i, dap_i))
         print ("there", array(db_i), array(dap_i))
-    #denom = dot(transpose(db, (1,0,2)), dap.T).shape
+    #denom = dot(trsensors_cross_wallspose(db, (1,0,2)), dap.T).shape
     #denom = 
     print (a.shape[0])
     print (walls.shape[1])
     denom = denom.reshape(a.shape[0],walls.shape[1],1)
     print ("denom",denom)
     print ("denom",denom.shape)
-    print (transpose(dp, (1,0,2)).shape, dap.shape)
+    print (trsensors_cross_wallspose(dp, (1,0,2)).shape, dap.shape)
     num = array([])
-    for dp_i, dap_i in zip(transpose(dp, (1,0,2)), dap):
+    for dp_i, dap_i in zip(trsensors_cross_wallspose(dp, (1,0,2)), dap):
         num = append(num, dot(dp_i, dap_i))
     #num = dot(dp, dap.T)
     num = num.reshape(a.shape[0],walls.shape[1],1)
@@ -60,7 +60,7 @@ def seg_intersect(a, walls):
     print ("sizes", (num / denom.astype(float)).shape, db.shape)
     print (walls[:, :,0].shape)
     print ("mult", (multiply((num / denom.astype(float)), db)))
-    #print ("ans", (multiply(num / denom.astype(float), db.T)).T + b[:,0])
+    #print ("sensors_cross_walls", (multiply(num / denom.astype(float), db.T)).T + b[:,0])
     return (multiply((num / denom.astype(float)), db) + walls[:,:,0])
 
 def is_intersect(sensor, walls):
@@ -143,14 +143,14 @@ def min_distances(sensors, walls):
     print ("calcs", walls)
     b = seg_intersect(sensors, walls) # finds intersection point
     print ("b",b)
-    print ("dif", sensors[:, 0] - transpose(b, (1,0,2)))
-    print ("power", power(sensors[:, 0] - transpose(b, (1,0,2)),2))
-    print ("sum", sum(power(sensors[:,0] - transpose(b, (1,0,2)),2), axis = 2))
-    print ("sqrt", sqrt(sum(power(sensors[:,0] - transpose(b, (1,0,2)),2), axis = 2)))
+    print ("dif", sensors[:, 0] - trsensors_cross_wallspose(b, (1,0,2)))
+    print ("power", power(sensors[:, 0] - trsensors_cross_wallspose(b, (1,0,2)),2))
+    print ("sum", sum(power(sensors[:,0] - trsensors_cross_wallspose(b, (1,0,2)),2), axis = 2))
+    print ("sqrt", sqrt(sum(power(sensors[:,0] - trsensors_cross_wallspose(b, (1,0,2)),2), axis = 2)))
     #distances[isnan(distances)] = max_seeing
     #distances
     #print ("distances", distances)
-    distances = sqrt(sum(power(sensors[:,0] - transpose(b, (1,0,2)),2), axis = 2))
+    distances = sqrt(sum(power(sensors[:,0] - trsensors_cross_wallspose(b, (1,0,2)),2), axis = 2))
     distances[isnan(distances)] = max_seeing
     #print ("ssss", distances.shape)
     #print ("ssss", distances)
@@ -172,14 +172,45 @@ p5 = array( [0.0, 6.0] )
 p6 = array( [6.0, 0.0] )
 
 #print (seg_intersect(array([p1,p2]), array([[p3,p4],[p5,p6],[p3,p6]])))
-print ("hello!",min_distances(array([[p1, p2],[p3, p2],[p4, p1]]),array([[p3,p4],[p5,p6],[p3,p6],[p2,p6]])))
+#print ("hello!",min_distances(array([[p1, p2],[p3, p2],[p4, p1]]),array([[p3,p4],[p5,p6],[p3,p6],[p2,p6]])))
+"""
 
-p1 = array( [5.0, 2.0] )
-p2 = array( [4.0, 3.0] )
+def min_distances(sensor, walls):
+    sensor = array(sensor)
+    walls = array(walls)
+    #http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
+    x1 = sensor[0,0]
+    y1 = sensor[0,1]
+    x2 = sensor[1,0]
+    y2 = sensor[1,1]
+    x3 = walls[:,0,0]
+    y3 = walls[:,0,1]
+    x4 = walls[:,1,0]
+    y4 = walls[:,1,1]
+    #print ((y3-y4).shape)
+    #print ((x1-x3).T.shape)
+    #print (dot((y3-y4),(x1-x3).T)+dot((x4-x3),(y1-y3).T))
+    #print (dot((y3-y4),(x1-x3))+dot((x4-x3),(y1-y3)))
+    a_top = (y3-y4)*(x1-x3)+(x4-x3)*(y1-y3)
+    a_bottom = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
+    b_top = (y1-y2)*(x1-x3)+(x2-x1)*(y1-y3)
+    b_bottom = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
+    #print ("top",top)
+    #print ("bottom",bottom)
+    sensors_cross_walls = a_top/a_bottom
+    walls_cross_sensors = b_top/b_bottom
+    #print (sensors_cross_walls.shape, walls_cross_sensors.shape)
+    sensors_cross_walls[sensors_cross_walls<0] = 1
+    sensors_cross_walls[sensors_cross_walls>1] = 1
+    sensors_cross_walls[walls_cross_sensors<0] = 1
+    sensors_cross_walls[walls_cross_sensors>1] = 1
+    #print ("sensors_cross_walls", sensors_cross_walls)
+    return (min(sensors_cross_walls))
 
-p3 = array( [6.0, 0.0] )
-p4 = array( [6.0, 3.0] )
+car = Car()
 
+print ([min_distances(sensor, walls) for sensor in car.sensors()])
+intersects = [min_distances(sensor, walls) for sensor in car.sensors()]
 
 
 pygame.init()
@@ -187,34 +218,16 @@ DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH_PXL, SCREEN_HIGHT_PXL))
 pygame.display.set_caption('Drawing')  
 
 DISPLAYSURF.fill(WHITE)
-
-car = Car()
-
-#print (car.sensors())
-
-#closest_intersect = vectorize(distance)
-#print (array([[p1,p2],[p1,p2],[p1,p2]]))
-#closest_intersect(array([[p1,p2],[p1,p2],[p1,p2]]), array([[p3,p4],[p5,p6],[p3,p6]]))
-
-
-
-#for sensor in car.sensors():
-#    print ("crosses", min_distances(sensor, walls))
-#    print ("dd")
-
-#print ("croses" ,min_distances(car.sensors(), walls))
-
-    #for wall in walls:
-        #print (seg_intersect(sensor, wall))
-        #print (distance(car.position, seg_intersect(sensor, wall)))
-
 '''
 #nado budet podelit trassu na uchastki chto perischitivat peresecheiya bistree
 '''
 while True:
+    DISPLAYSURF.fill(WHITE)
     Draw_Walls(DISPLAYSURF, walls)
-    car.draw(DISPLAYSURF, True)
-    sys.exit()
+    intersects = [min_distances(sensor, walls) for sensor in car.sensors()]
+    car.draw(DISPLAYSURF, True, intersects)
+    car.go(0.3, -0.03)
+    #sys.exit()
     #car.draw(DISPLAYSURF, False)
     for event in pygame.event.get():
         if event.type == QUIT:
