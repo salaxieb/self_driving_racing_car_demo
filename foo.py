@@ -1,4 +1,5 @@
 from numpy import *
+random.seed(1234567890)
 def perp( a ) :
     b = empty_like(a)
     b[0] = -a[1]
@@ -26,5 +27,3 @@ p2 = array( [1.0, 0.0] )
 
 p3 = array( [4.0, -5.0] )
 p4 = array( [4.0, 2.0] )
-
-print seg_intersect( p1,p2, p3,p4)
